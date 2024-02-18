@@ -1,4 +1,4 @@
-# TicketPlace Backend
+# TicketPlace Database
 
 **Table of Contents**:
 
