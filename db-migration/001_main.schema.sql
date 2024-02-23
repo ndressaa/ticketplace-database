@@ -39,8 +39,8 @@ create table public.user (
 
   primary key ("email")
 );
-create trigger trigger_sync_metadata_handle_date_fields
-  before insert or update on public.sync_metadata
+create trigger trigger_user_handle_date_fields
+  before insert or update on public.user
   for each row execute procedure public.handle_date_fields();
 
 -- Create SHOW table
@@ -54,8 +54,8 @@ create table public.show (
 
   primary key ("id")
 );
-create trigger trigger_resource_sync_handle_date_fields
-  before insert or update on public.resource_sync
+create trigger trigger_show_handle_date_fields
+  before insert or update on public.show
   for each row execute procedure public.handle_date_fields();
 
 commit;
