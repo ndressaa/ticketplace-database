@@ -5,7 +5,7 @@ create schema if not exists "public";
 create schema if not exists "private";
 
 -- Add date fields trigger function
-create or replace function public.handle_date_fields()
+create or replace function public.fn_handle_date_fields()
 returns trigger as $$
   begin
     if TG_OP = 'INSERT' then
@@ -34,28 +34,33 @@ create table public.user (
   "name"            varchar(255) not null,
   "email"           varchar(255) not null,
   "password"        varchar(255) not null,
+  "active"        boolean      not null default true,
   "created_at"      timestamptz  not null default current_timestamp,
   "updated_at"      timestamptz  not null default current_timestamp,
 
   primary key ("email")
+  constraint "user_id_pk" primary key ("id") -- constraint
 );
-create trigger trigger_sync_metadata_handle_date_fields
-  before insert or update on public.sync_metadata
+create trigger trigger_user_handle_date_fields
+  before insert or update on public.user
   for each row execute procedure public.handle_date_fields();
 
 -- Create SHOW table
 create table public.show (
-  "id"              bigint        not null,
+  "id"              bigint        not null serial,
+  user_id           bigint        not null,
   "title"           varchar(255)  not null,
   "description"     text          not null,
   "value"           float         not null,
   "created_at"      timestamptz   not null default current_timestamp,
   "updated_at"      timestamptz   not null default current_timestamp,
 
-  primary key ("id")
+  primary key ("id"), -- constraint 
+
+  constraint "show_user_id_fk" foreign key (user_id) references public.user ("id") on delete cascade
 );
-create trigger trigger_resource_sync_handle_date_fields
-  before insert or update on public.resource_sync
+create trigger trigger_show_handle_date_fields
+  before insert or update on public.show
   for each row execute procedure public.handle_date_fields();
 
 commit;

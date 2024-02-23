@@ -1,4 +1,4 @@
-FROM postgres:15
+FROM postgres:15 # assume que tudo está igual ao repositório do Dockerhub
 
 RUN apt-get update \
       && apt-cache showpkg postgresql-$PG_MAJOR-pgaudit \

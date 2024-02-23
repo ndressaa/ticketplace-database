@@ -5,7 +5,7 @@ services:
     image: postgres
     command: postgres -c shared_preload_libraries=pgaudit -c ssl=${C_SSL_ON:-off} -c ssl_cert_file=$C_SSL_CERT_F -c ssl_key_file=$C_SSL_KEY_F
     ports:
-      - change-database-temp
+      - 5432:5432
     restart: always
     volumes:
       - './db-data:/var/lib/postgresql/data'
