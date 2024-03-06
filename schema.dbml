@@ -53,7 +53,7 @@ Table public.tb_cartoes_de_banco as cartoes {
   nome_cartao varchar(225) [note: "Apelido"]
   cpf_titular varchar(11) [not null]
   numero_cartao varchar(255) [not null]
-  data_expiracao timestamptz [not null]
+  data_expiracao date [not null]
   codigo_seguranca varchar(4) [not null]
   id_usuario bigint [not null, ref: > usuarios.id]
   created_at timestamptz [not null, default: `current_timestamp`]
