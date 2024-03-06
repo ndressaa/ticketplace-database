@@ -1,59 +1,91 @@
-Table "tb_empresa" {
-  "id" serial [not null, increment]
-  "name" varchar(255) [not null]
-  "cnpj" varchar(14) [pk, not null]
-  "email" varchar(255) [not null]
-  "created_at" timestamptz [not null, default: `current_timestamp`]
-  "updated_at" timestamptz [not null, default: `current_timestamp`]
+// 
+// Para visualizar o diagrama gerado a partir desse arquivo, acesse: https://dbdiagram.io/d
+//
+
+project ticketplace {
+  database_type: 'PostgreSQL'
+  Note: 'PI SENAC ticketplace'
 }
 
-Table "tb_eventos" {
-  "id" bigint [pk, not null]
-  "title" varchar(255) [not null]
-  "description" text [not null]
-  "value" float [not null]
-  "created_at" timestamptz [not null, default: `current_timestamp`]
-  "updated_at" timestamptz [not null, default: `current_timestamp`]
+Table public.tb_empresas as empresas {
+  id bigint [not null, increment]
+  cnpj varchar(14) [pk, not null]
+  name varchar(255) [not null]
+  email varchar(255) [not null]
+  created_at timestamptz [not null, default: `current_timestamp`]
+  updated_at timestamptz [not null, default: `current_timestamp`]
 }
 
-Table "tb_ingressos" {
-  "id" bigint [pk, not null]
-  "value" float [not null]
-  "id_evento" bigint [not null]
-  "id_usuario" bigint [not null]
-  "created_at" timestamptz [not null, default: `current_timestamp`]
-  "updated_at" timestamptz [not null, default: `current_timestamp`]
+Table public.tb_eventos as eventos {
+  id bigint [pk, not null, increment]
+  id_empresa bigint [not null, ref: > empresas.id]
+  title varchar(255) [not null]
+  description text [not null]
+  date timestamptz [not null, note: "Data do evento"]
+  event_type _varchar(255) [not null, note: "Array[Show, Teatro, Concertos, ...]"]
+  genre _varchar(255) [note: "Array[Rock, Ópera, ...]"]
+  created_at timestamptz [not null, default: `current_timestamp`]
+  updated_at timestamptz [not null, default: `current_timestamp`]
 }
 
-Table "tb_usuarios" {
-  "id" bigint [not null]
-  "name" varchar(255) [not null]
-  "cpf" varchar(11) [not null]
-  "email" varchar(255) [pk, not null]
-  "password" varchar(255) [not null]
-  "created_at" timestamptz [not null, default: `current_timestamp`]
-  "updated_at" timestamptz [not null, default: `current_timestamp`]
+Table public.tb_ingressos as ingressos {
+  id bigint [pk, not null, increment]
+  type ticket_type [not null]
+  value float [not null]
+  id_evento bigint [not null, ref: > eventos.id]
+  created_at timestamptz [not null, default: `current_timestamp`]
+  updated_at timestamptz [not null, default: `current_timestamp`]
 }
 
-Table "tb_dados_cartao" {
-  "id" bigint [not null]
-  "titula_cartao" varchar(225) [not null]
-  "cpf_titular" varchar(11) [not null]
-  "numero_cartao" varchar(255) [pk, not null]
-  "data_expiracao" timestamptz [not null]
-  "codigo_seguranca" varchar(4) [not null]
-  "id_usuario" bigint [not null]
-  "created_at" timestamptz [not null, default: `current_timestamp`]
-  "updated_at" timestamptz [not null, default: `current_timestamp`]
+Table public.tb_usuarios as usuarios {
+  id bigint [not null, increment]
+  name varchar(255) [not null]
+  cpf varchar(11) [not null]
+  email varchar(255) [pk, not null]
+  password varchar(255) [not null]
+  token varchar(255)
+  created_at timestamptz [not null, default: `current_timestamp`]
+  updated_at timestamptz [not null, default: `current_timestamp`]
 }
 
-Table "tb_pagamentos" {
-  "id" bigint [pk, not null]
-  "quantidade_ingressos" int [not null]
-  "valo_final" float [not null]
-  "id_usuario" bigint [not null]
-  "id_ingresso" bigint [not null]
-  "created_at" timestamptz [not null, default: `current_timestamp`]
-  "updated_at" timestamptz [not null, default: `current_timestamp`]
+Table public.tb_cartoes_de_banco as cartoes {
+  id bigint [not null, increment]
+  nome_cartao varchar(225) [note: "Apelido"]
+  cpf_titular varchar(11) [not null]
+  numero_cartao varchar(255) [not null]
+  data_expiracao timestamptz [not null]
+  codigo_seguranca varchar(4) [not null]
+  id_usuario bigint [not null, ref: > usuarios.id]
+  created_at timestamptz [not null, default: `current_timestamp`]
+  updated_at timestamptz [not null, default: `current_timestamp`]
+
+  indexes {
+    // Existe a possibilidade de um cartão ser reutilizado
+    // por isso nossa PK será composta pelas 3 colunas
+    (numero_cartao, data_expiracao, codigo_seguranca) [pk]
+  }
 }
+
+Table public.tb_carrinho as carrinho {
+  id_usuario bigint [not null, ref: > usuarios.id]
+  id_ingresso bigint [not null, ref: > ingressos.id]
+  class ticket_class [not null, default: `standard`]
+  discount float [not null, default: 0]
+  created_at timestamptz [not null, default: `current_timestamp`]
+  updated_at timestamptz [not null, default: `current_timestamp`]
+}
+
+enum ticket_type {
+  standard
+  vip
+  premium
+}
+
+enum ticket_class {
+  standard
+  senior
+  student
+  promotional
+}
+
 
