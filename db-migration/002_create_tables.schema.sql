@@ -79,9 +79,9 @@ create table IF NOT EXISTS public.tb_dados_cartao (
 create table IF NOT EXISTS public.tb_pagamentos (
   id                      bigint        not null    primary key,
   quantidade_ingressos    int           not null,
-  valo_final              float         not null,
-  id_usuarios              bigint        not null    REFERENCES tb_usuarios(id),
-  id_ingressos             bigint        not null    REFERENCES tb_ingressos(id),
+  valor_final              float        not null,
+  id_usuarios              bigint       not null    REFERENCES tb_usuarios(id),
+  id_ingressos             bigint       not null    REFERENCES tb_ingressos(id),
   criado_data             timestamptz  not null     default current_timestamp,
   modificado_data         timestamptz  not null     default current_timestamp,
 );
