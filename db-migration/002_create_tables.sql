@@ -11,7 +11,7 @@ CREATE TYPE ticket_class AS ENUM ('standard', 'senior', 'student', 'promotional'
 ---------------------
 
 -- Create USER table
-.create table IF NOT EXISTS public.tb_empresas (
+create table IF NOT EXISTS public.tb_empresas (
   id              serial       not null,
   name            varchar(255) not null,
   cnpj            varchar(14)  not null         primary key,
@@ -26,7 +26,7 @@ create table IF NOT EXISTS public.tb_eventos (
   id              bigint        not null        primary key,
   id_empresa      BIGINT        NOT NULL        REFERENCES tb_empresas(id),
   titulo          varchar(255)  not null,
-  descrição       text          not null,---verificar se o 'Ç' não quebra nada
+  descricão       text          not null,
   valor           float         not null,
   criado_data             timestamptz  not null     default current_timestamp,
   modificado_data         timestamptz  not null     default current_timestamp,
