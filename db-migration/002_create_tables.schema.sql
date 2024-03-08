@@ -119,7 +119,7 @@ create table if not exists public.tb_dados_cartao (
   primary key (numero_cartao, data_expiracao, codigo_seguranca),
 
   -- Chave estrangeira para a tabela de usuários
-  constraint fkey_tb_usuarios foreign key (id_usuario ) 
+  constraint fkey_tb_usuarios foreign key (id_usuario) 
     references public.tb_usuarios(id)
     on update cascade on delete cascade
 );
@@ -135,7 +135,7 @@ create table if not exists public.tb_pagamentos (
   quantidade_ingressos    int               not null,
   valor_final             float             not null,
   id_usuario              bigint            not null,
-  id_ingressos            bigint            not null,
+  id_ingresso             bigint            not null,
   criado_data             timestamptz       not null default current_timestamp,
   atualizado_data         timestamptz       not null default current_timestamp,
 
@@ -143,12 +143,12 @@ create table if not exists public.tb_pagamentos (
   constraint pkey_tb_pagamentos primary key (id),
 
   -- Chave estrangeira para a tabela de usuários
-  constraint fkey_tb_usuarios foreign key (id_usuario ) 
+  constraint fkey_tb_usuarios foreign key (id_usuario) 
     references public.tb_usuarios(id)
     on update cascade on delete cascade,
 
   -- Chave estrangeira para a tabela de ingressos
-  constraint fkey_tb_ingressos foreign key (id_ingressos) 
+  constraint fkey_tb_ingressos foreign key (id_ingresso) 
     references public.tb_ingressos(id)
     on update cascade on delete cascade
 );
@@ -161,19 +161,19 @@ create trigger trigger_gerencia_data_tb_pagamentos
 
 create table if not exists public.tb_carrinho (
   id_usuario               bigint           not null,
-  id_ingressos             bigint           not null,
+  id_ingresso              bigint           not null,
   classe                   ticket_class     not null,
   desconto                 float            not null,
   criado_data              timestamptz      not null  default current_timestamp,
   atualizado_data          timestamptz      not null  default current_timestamp,
 
   -- Chave estrangeira para a tabela de usuários
-  constraint fkey_tb_usuarios foreign key (id_usuario ) 
+  constraint fkey_tb_usuarios foreign key (id_usuario) 
     references public.tb_usuarios(id)
     on update cascade on delete cascade,
 
   -- Chave estrangeira para a tabela de ingressos
-  constraint fkey_tb_ingressos foreign key (id_ingressos) 
+  constraint fkey_tb_ingressos foreign key (id_ingresso) 
     references public.tb_ingressos(id)
     on update cascade on delete cascade
 );
