@@ -17,7 +17,7 @@ create table IF NOT EXISTS public.tb_empresas (
   cnpj            varchar(14)  not null         primary key,
   email           varchar(255) not null,
   criado_data             timestamptz  not null     default current_timestamp,
-  modificado_data         timestamptz  not null     default current_timestamp,
+  modificado_data         timestamptz  not null     default current_timestamp
 );
 
 
@@ -33,6 +33,9 @@ create table IF NOT EXISTS public.tb_eventos (
   capa            text    
   criado_data             timestamptz  not null     default current_timestamp,
   modificado_data         timestamptz  not null     default current_timestamp,
+  --constraint de relação entre a tabelas
+  CONSTRAINT fk_empresa  FOREIGN KEY (customer_id) REFERENCES tb_empresas(id)
+
 );
 
 
@@ -44,6 +47,9 @@ create table IF NOT EXISTS public.tb_ingressos (
   id_eventos       bigint        not null        REFERENCES tb_eventos(id),
   criado_data             timestamptz  not null     default current_timestamp,
   modificado_data         timestamptz  not null     default current_timestamp,
+
+  --constraint de relação entre a tabelas
+  CONSTRAINT fk_eventos  FOREIGN KEY (id_eventos) REFERENCES tb_eventos(id)
 );
 
 
@@ -56,7 +62,7 @@ create table IF NOT EXISTS public.tb_usuarios (
   senha           varchar(255) not null,
   token           varchar(255) not null,
   criado_data             timestamptz  not null     default current_timestamp,
-  modificado_data         timestamptz  not null     default current_timestamp,
+  modificado_data         timestamptz  not null     default current_timestamp
 );
 
 
@@ -73,7 +79,10 @@ create table IF NOT EXISTS public.tb_dados_cartao (
   modificado_data         timestamptz  not null     default current_timestamp,
 
   -- Definir a chave primária composta
-  PRIMARY KEY (numero_cartao, data_expiracao, codigo_seguranca)
+  PRIMARY KEY (numero_cartao, data_expiracao, codigo_seguranca),
+
+  --constraint de relação entre a tabelas
+  CONSTRAINT fk_usuarios  FOREIGN KEY (usuarios_id) REFERENCES tb_usuarios(id)
 );
 
 
@@ -81,11 +90,16 @@ create table IF NOT EXISTS public.tb_dados_cartao (
 create table IF NOT EXISTS public.tb_pagamentos (
   id                      serial        not null    primary key,
   quantidade_ingressos    int           not null,
-  valor_final              float        not null,
-  id_usuarios              bigint       not null    REFERENCES tb_usuarios(id),
-  id_ingressos             bigint       not null    REFERENCES tb_ingressos(id),
+  valor_final             float        not null,
+  id_usuarios             bigint       not null    REFERENCES tb_usuarios(id),
+  id_ingressos            bigint       not null    REFERENCES tb_ingressos(id),
   criado_data             timestamptz  not null     default current_timestamp,
   modificado_data         timestamptz  not null     default current_timestamp,
+
+  --constraint de relação entre a tabelas
+  CONSTRAINT fk_usuarios   FOREIGN KEY (usuarios_id) REFERENCES tb_usuarios(id),
+  CONSTRAINT fk_ingressos  FOREIGN KEY (ingressos_id) REFERENCES tb_ingressos(id)
+
 );
 
 
@@ -97,6 +111,11 @@ create table IF NOT EXISTS public.tb_carrinho (
   desconto                 float         not null,
   criado_data             timestamptz  not null     default current_timestamp,
   modificado_data         timestamptz  not null     default current_timestamp,
+
+  --constraint de relação entre a tabelas
+  CONSTRAINT fk_usuarios   FOREIGN KEY (usuarios_id) REFERENCES tb_usuarios(id),
+  CONSTRAINT fk_ingressos  FOREIGN KEY (ingressos_id) REFERENCES tb_ingressos(id)
+
 );
 
 
