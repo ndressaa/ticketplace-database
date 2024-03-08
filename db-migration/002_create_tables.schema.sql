@@ -13,7 +13,7 @@ CREATE TYPE ticket_class AS ENUM ('standard', 'senior', 'student', 'promotional'
 -- Create USER table
 create table IF NOT EXISTS public.tb_empresas (
   id              serial       not null,
-  name            varchar(255) not null,
+  nome            varchar(255) not null,
   cnpj            varchar(14)  not null         primary key,
   email           varchar(255) not null,
   criado_data             timestamptz  not null     default current_timestamp,
@@ -21,13 +21,16 @@ create table IF NOT EXISTS public.tb_empresas (
 );
 
 
--- Create SHOW table
+-- Create EVENTO table
 create table IF NOT EXISTS public.tb_eventos (
-  id              bigint        not null        primary key,
+  id              serial        not null        primary key,
   id_empresa      BIGINT        NOT NULL        REFERENCES tb_empresas(id),
   titulo          varchar(255)  not null,
   descricão       text          not null,
-  valor           float         not null,
+  data            timestamptz   not null, --data do evento
+  tipo_evento     varchar(255)  not null,
+  genero          varchar(255)  not null,
+  capa            text    
   criado_data             timestamptz  not null     default current_timestamp,
   modificado_data         timestamptz  not null     default current_timestamp,
 );
@@ -35,11 +38,10 @@ create table IF NOT EXISTS public.tb_eventos (
 
 -- Create INGRESSOS table
 create table IF NOT EXISTS public.tb_ingressos (
-  id               bigint        not null        primary key,
+  id               serial        not null        primary key,
   tipo             ticket_type   not null,
   valor            float         not null,
   id_eventos       bigint        not null        REFERENCES tb_eventos(id),
-  id_usuarios      bigint        not null        REFERENCES tb_usuarios(id),
   criado_data             timestamptz  not null     default current_timestamp,
   modificado_data         timestamptz  not null     default current_timestamp,
 );
@@ -47,8 +49,8 @@ create table IF NOT EXISTS public.tb_ingressos (
 
 -- Create USUARIOS table
 create table IF NOT EXISTS public.tb_usuarios (
-  id              bigint       not null,
-  name            varchar(255) not null,
+  id              serial       not null,
+  nome            varchar(255) not null,
   cpf             varchar(11)  not null,
   email           varchar(255) not null         primary key,
   senha           varchar(255) not null,
@@ -60,7 +62,7 @@ create table IF NOT EXISTS public.tb_usuarios (
 
 -- Create CARTÃO table
 create table IF NOT EXISTS public.tb_dados_cartao (
-  id                      bigint       not null,
+  id                      serial       not null,
   nome_cartao             varchar(225) not null,
   cpf_titular             varchar(11)  not null,
   numero_cartao           varchar(255) not null,
@@ -77,7 +79,7 @@ create table IF NOT EXISTS public.tb_dados_cartao (
 
 -- Create PAGAMENTOS table
 create table IF NOT EXISTS public.tb_pagamentos (
-  id                      bigint        not null    primary key,
+  id                      serial        not null    primary key,
   quantidade_ingressos    int           not null,
   valor_final              float        not null,
   id_usuarios              bigint       not null    REFERENCES tb_usuarios(id),
