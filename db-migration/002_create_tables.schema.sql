@@ -1,122 +1,187 @@
 begin;
 
--- Criar o tipo ENUM ticket_type
-CREATE TYPE ticket_type AS ENUM ('standard', 'vip', 'premium');
+-- Criar ENUM para os tipos de ingressos
+create type ticket_type as enum ('standard', 'vip', 'premium');
 
--- Criar o tipo ENUM ticket_class
-CREATE TYPE ticket_class AS ENUM ('standard', 'senior', 'student', 'promotional');
+-- Criar ENUM para as classes de ingressos
+create type ticket_class as enum ('standard', 'senior', 'estudante', 'promocional');
 
 ---------------------
--- Create tables
+-- CRIA TODAS AS TABELAS
 ---------------------
 
--- Create USER table
-create table IF NOT EXISTS public.tb_empresas (
-  id              serial       not null,
-  nome            varchar(255) not null,
-  cnpj            varchar(14)  not null         primary key,
-  email           varchar(255) not null,
-  criado_data             timestamptz  not null     default current_timestamp,
-  modificado_data         timestamptz  not null     default current_timestamp
+create table if not exists public.tb_empresas (
+  id                      serial            not null,
+  nome                    varchar(255)      not null,
+  cnpj                    varchar(14)       not null,
+  email                   varchar(255)      not null,
+  criado_data             timestamptz       not null default current_timestamp,
+  atualizado_data         timestamptz       not null default current_timestamp,
+
+  -- Definir a chave primária
+  constraint pkey_tb_empresas primary key (cnpj),
+
+  -- Definir a coluna `id` como única para ser utilizada como chave estrangeira
+  constraint unique_tb_empresas_id unique (id)
 );
 
+-- Cria um trigger na tabela `tb_empresas` para gerenciar automaticamente as colunas de `timestamp`
+create trigger trigger_gerencia_data_tb_empresas
+  before insert or update on public.tb_empresas
+  for each row execute procedure public.gerencia_coluna_timestamp();
 
--- Create EVENTO table
-create table IF NOT EXISTS public.tb_eventos (
-  id              serial        not null        primary key,
-  id_empresa      BIGINT        NOT NULL        REFERENCES tb_empresas(id),
-  titulo          varchar(255)  not null,
-  descricão       text          not null,
-  data            timestamptz   not null, --data do evento
-  tipo_evento     varchar(255)  not null,
-  genero          varchar(255)  not null,
-  capa            text    
-  criado_data             timestamptz  not null     default current_timestamp,
-  modificado_data         timestamptz  not null     default current_timestamp,
-  --constraint de relação entre a tabelas
-  CONSTRAINT fk_empresa  FOREIGN KEY (customer_id) REFERENCES tb_empresas(id)
 
+create table if not exists public.tb_eventos (
+  id                      serial            not null,
+  id_empresa              bigint            not null,
+  titulo                  varchar(255)      not null,
+  descricao               text              not null,
+  data                    timestamptz       not null, --data do evento
+  tipo_evento             varchar[]         not null,
+  genero                  varchar[]         not null,
+  capa                    text,
+  criado_data             timestamptz       not null  default current_timestamp,
+  atualizado_data         timestamptz       not null  default current_timestamp,
+
+  -- Definir a chave primária
+  constraint pkey_tb_eventos primary key (id),
+
+  -- Chave estrangeira para a tabela de empresas
+  constraint fkey_ foreign key (id_empresa) 
+    references public.tb_empresas(id)
+    on update cascade on delete cascade
 );
 
+-- Cria um trigger na tabela `tb_eventos` para gerenciar automaticamente as colunas de `timestamp`
+create trigger trigger_gerencia_data_tb_eventos
+  before insert or update on public.tb_eventos
+  for each row execute procedure public.gerencia_coluna_timestamp();
 
--- Create INGRESSOS table
-create table IF NOT EXISTS public.tb_ingressos (
-  id               serial        not null        primary key,
-  tipo             ticket_type   not null,
-  valor            float         not null,
-  id_eventos       bigint        not null        REFERENCES tb_eventos(id),
-  criado_data             timestamptz  not null     default current_timestamp,
-  modificado_data         timestamptz  not null     default current_timestamp,
 
-  --constraint de relação entre a tabelas
-  CONSTRAINT fk_eventos  FOREIGN KEY (id_eventos) REFERENCES tb_eventos(id)
+create table if not exists public.tb_ingressos (
+  id                      serial            not null,
+  tipo                    ticket_type       not null,
+  valor                   float             not null,
+  id_evento               bigint            not null,
+  criado_data             timestamptz       not null default current_timestamp,
+  atualizado_data         timestamptz       not null default current_timestamp,
+
+  -- Definir a chave primária
+  constraint pkey_tb_ingressos primary key (id),
+
+  -- Chave estrangeira para a tabela de eventos
+  constraint fkey_tb_eventos foreign key (id_evento) 
+    references public.tb_eventos(id)
+    on update cascade on delete cascade
 );
 
+-- Cria um trigger na tabela `tb_ingressos` para gerenciar automaticamente as colunas de `timestamp`
+create trigger trigger_gerencia_data_tb_ingressos
+  before insert or update on public.tb_ingressos
+  for each row execute procedure public.gerencia_coluna_timestamp();
 
--- Create USUARIOS table
-create table IF NOT EXISTS public.tb_usuarios (
-  id              serial       not null,
-  nome            varchar(255) not null,
-  cpf             varchar(11)  not null,
-  email           varchar(255) not null         primary key,
-  senha           varchar(255) not null,
-  token           varchar(255) not null,
-  criado_data             timestamptz  not null     default current_timestamp,
-  modificado_data         timestamptz  not null     default current_timestamp
+
+create table if not exists public.tb_usuarios (
+  id                      serial            not null,
+  nome                    varchar(255)      not null,
+  cpf                     varchar(11)       not null,
+  email                   varchar(255)      not null,
+  senha                   varchar(255)      not null,
+  token                   varchar(255),
+  criado_data             timestamptz       not null default current_timestamp,
+  atualizado_data         timestamptz       not null default current_timestamp,
+
+  -- Definir a chave primária
+  constraint pkey_tb_usuarios primary key (cpf),
+
+  -- Definir a coluna `id` como única para ser utilizada como chave estrangeira
+  constraint unique_tb_usuarios_id unique (id)
 );
 
+-- Cria um trigger na tabela `tb_usuarios` para gerenciar automaticamente as colunas de `timestamp`
+create trigger trigger_gerencia_data_tb_usuarios
+  before insert or update on public.tb_usuarios
+  for each row execute procedure public.gerencia_coluna_timestamp();
 
--- Create CARTÃO table
-create table IF NOT EXISTS public.tb_dados_cartao (
-  id                      serial       not null,
-  nome_cartao             varchar(225) not null,
-  cpf_titular             varchar(11)  not null,
-  numero_cartao           varchar(255) not null,
-  data_expiracao          date         not null,
-  codigo_seguranca        varchar(4)   not null,
-  id_usuarios             bigint       not null     REFERENCES tb_usuarios(id),
-  criado_data             timestamptz  not null     default current_timestamp,
-  modificado_data         timestamptz  not null     default current_timestamp,
+
+create table if not exists public.tb_dados_cartao (
+  id                      serial            not null,
+  nome_cartao             varchar(225)      not null,
+  cpf_titular             varchar(11)       not null,
+  numero_cartao           varchar(255)      not null,
+  data_expiracao          date              not null,
+  codigo_seguranca        varchar(4)        not null,
+  id_usuarios             bigint            not null,
+  criado_data             timestamptz       not null default current_timestamp,
+  atualizado_data         timestamptz       not null default current_timestamp,
 
   -- Definir a chave primária composta
-  PRIMARY KEY (numero_cartao, data_expiracao, codigo_seguranca),
+  primary key (numero_cartao, data_expiracao, codigo_seguranca),
 
-  --constraint de relação entre a tabelas
-  CONSTRAINT fk_usuarios  FOREIGN KEY (usuarios_id) REFERENCES tb_usuarios(id)
+  -- Chave estrangeira para a tabela de usuários
+  constraint fkey_tb_usuarios foreign key (id_usuarios) 
+    references public.tb_usuarios(id)
+    on update cascade on delete cascade
 );
 
+-- Cria um trigger na tabela `tb_dados_cartao` para gerenciar automaticamente as colunas de `timestamp`
+create trigger trigger_gerencia_data_tb_dados_cartao
+  before insert or update on public.tb_dados_cartao
+  for each row execute procedure public.gerencia_coluna_timestamp();
 
--- Create PAGAMENTOS table
-create table IF NOT EXISTS public.tb_pagamentos (
-  id                      serial        not null    primary key,
-  quantidade_ingressos    int           not null,
-  valor_final             float        not null,
-  id_usuarios             bigint       not null    REFERENCES tb_usuarios(id),
-  id_ingressos            bigint       not null    REFERENCES tb_ingressos(id),
-  criado_data             timestamptz  not null     default current_timestamp,
-  modificado_data         timestamptz  not null     default current_timestamp,
 
-  --constraint de relação entre a tabelas
-  CONSTRAINT fk_usuarios   FOREIGN KEY (usuarios_id) REFERENCES tb_usuarios(id),
-  CONSTRAINT fk_ingressos  FOREIGN KEY (ingressos_id) REFERENCES tb_ingressos(id)
+create table if not exists public.tb_pagamentos (
+  id                      serial            not null,
+  quantidade_ingressos    int               not null,
+  valor_final             float             not null,
+  id_usuarios             bigint            not null,
+  id_ingressos            bigint            not null,
+  criado_data             timestamptz       not null default current_timestamp,
+  atualizado_data         timestamptz       not null default current_timestamp,
 
+  -- Definir a chave primária
+  constraint pkey_tb_pagamentos primary key (id),
+
+  -- Chave estrangeira para a tabela de usuários
+  constraint fkey_tb_usuarios foreign key (id_usuarios) 
+    references public.tb_usuarios(id)
+    on update cascade on delete cascade,
+
+  -- Chave estrangeira para a tabela de ingressos
+  constraint fkey_tb_ingressos foreign key (id_ingressos) 
+    references public.tb_ingressos(id)
+    on update cascade on delete cascade
 );
 
+-- Cria um trigger na tabela `tb_pagamentos` para gerenciar automaticamente as colunas de `timestamp`
+create trigger trigger_gerencia_data_tb_pagamentos
+  before insert or update on public.tb_pagamentos
+  for each row execute procedure public.gerencia_coluna_timestamp();
 
--- Create CARRINHO table
-create table IF NOT EXISTS public.tb_carrinho (
-  id_usuarios              bigint        not null    REFERENCES tb_usuarios(id),
-  id_ingressos             bigint        not null    REFERENCES tb_ingressos(id),
-  classe                   ticket_class  not null,
-  desconto                 float         not null,
-  criado_data             timestamptz  not null     default current_timestamp,
-  modificado_data         timestamptz  not null     default current_timestamp,
 
-  --constraint de relação entre a tabelas
-  CONSTRAINT fk_usuarios   FOREIGN KEY (usuarios_id) REFERENCES tb_usuarios(id),
-  CONSTRAINT fk_ingressos  FOREIGN KEY (ingressos_id) REFERENCES tb_ingressos(id)
+create table if not exists public.tb_carrinho (
+  id_usuarios              bigint           not null,
+  id_ingressos             bigint           not null,
+  classe                   ticket_class     not null,
+  desconto                 float            not null,
+  criado_data              timestamptz      not null  default current_timestamp,
+  atualizado_data          timestamptz      not null  default current_timestamp,
 
+  -- Chave estrangeira para a tabela de usuários
+  constraint fkey_tb_usuarios foreign key (id_usuarios) 
+    references public.tb_usuarios(id)
+    on update cascade on delete cascade,
+
+  -- Chave estrangeira para a tabela de ingressos
+  constraint fkey_tb_ingressos foreign key (id_ingressos) 
+    references public.tb_ingressos(id)
+    on update cascade on delete cascade
 );
+
+-- Cria um trigger na tabela `tb_carrinho` para gerenciar automaticamente as colunas de `timestamp`
+create trigger trigger_gerencia_data_tb_carrinho
+  before insert or update on public.tb_carrinho
+  for each row execute procedure public.gerencia_coluna_timestamp();
 
 
 commit;
