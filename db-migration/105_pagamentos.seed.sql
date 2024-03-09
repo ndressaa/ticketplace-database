@@ -9,3 +9,5 @@ values
 (6, 4, 360.00, 2, 15),
 (7, 1, 25.00,  2, 10),
 (8, 2, 150.00, 1, 5);
+
+select setval('tb_pagamentos_id_serial_seq', 8);
