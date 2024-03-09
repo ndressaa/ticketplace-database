@@ -12,6 +12,7 @@ create type ticket_class as enum ('standard', 'senior', 'estudante', 'promociona
 
 create table if not exists public.tb_empresas (
   id                      serial            not null,
+  id_enderecos            bigint            not null,
   nome                    varchar(255)      not null,
   cnpj                    varchar(14)       not null,
   email                   varchar(255)      not null,
@@ -22,7 +23,13 @@ create table if not exists public.tb_empresas (
   constraint pkey_tb_empresas primary key (cnpj),
 
   -- Definir a coluna `id` como única para ser utilizada como chave estrangeira
-  constraint unique_tb_empresas_id unique (id)
+  constraint unique_tb_empresas_id unique (id),
+
+  -- Chave estrangeira para a tabela de id_enderecos
+  constraint fkey_tb_enderecos foreign key (id_enderecos) 
+    references public.tb_enderecos(id)
+    on update cascade on delete cascade
+  
 );
 
 -- Cria um trigger na tabela `tb_empresas` para gerenciar automaticamente as colunas de `timestamp`
@@ -31,9 +38,35 @@ create trigger trigger_gerencia_data_tb_empresas
   for each row execute procedure public.gerencia_coluna_timestamp();
 
 
+create table if not exists public.tb_enderecos (
+  id                      serial            not null,
+  cep                     varchar(8)        not null,
+  rua                     varchar(255)      not null,
+  numero_cass             varchar(10)       not null,
+  complemento             varchar(255),
+  bairro                  varchar(255)      not null,
+  cidade                  varchar(255)      not null,
+  estado                  varchar(2)        not null,
+  criado_data             timestamptz       not null default current_timestamp,
+  atualizado_data         timestamptz       not null default current_timestamp,
+
+  -- Definir a chave primária
+  constraint pkey_tb_enderecos  primary key (id),
+
+  -- Definir a coluna `id` como única para ser utilizada como chave estrangeira
+  constraint unique_tb_empresas_id unique (id)
+);
+
+-- Cria um trigger na tabela `tb_enderecos` para gerenciar automaticamente as colunas de `timestamp`
+create trigger trigger_gerencia_data_tb_enderecos
+  before insert or update on public.tb_enderecos
+  for each row execute procedure public.gerencia_coluna_timestamp();
+
+
 create table if not exists public.tb_eventos (
   id                      serial            not null,
   id_empresa              bigint            not null,
+  id_enderecos            bigint            not null,
   titulo                  varchar(255)      not null,
   descricao               text              not null,
   data                    timestamptz       not null, --data do evento
@@ -46,9 +79,18 @@ create table if not exists public.tb_eventos (
   -- Definir a chave primária
   constraint pkey_tb_eventos primary key (id),
 
+    -- Definir a coluna `id` como única para ser utilizada como chave estrangeira
+  constraint unique_tb_eventos unique (id),
+
+
   -- Chave estrangeira para a tabela de empresas
   constraint fkey_ foreign key (id_empresa) 
     references public.tb_empresas(id)
+    on update cascade on delete cascade,
+
+  -- Chave estrangeira para a tabela de id_enderecos
+  constraint fkey_tb_enderecos foreign key (id_enderecos) 
+    references public.tb_enderecos(id)
     on update cascade on delete cascade
 );
 
@@ -69,6 +111,9 @@ create table if not exists public.tb_ingressos (
   -- Definir a chave primária
   constraint pkey_tb_ingressos primary key (id),
 
+  -- Definir a coluna `id` como única para ser utilizada como chave estrangeira
+  constraint unique_tb_ingressos unique (id),
+
   -- Chave estrangeira para a tabela de eventos
   constraint fkey_tb_eventos foreign key (id_evento) 
     references public.tb_eventos(id)
@@ -83,6 +128,7 @@ create trigger trigger_gerencia_data_tb_ingressos
 
 create table if not exists public.tb_usuarios (
   id                      serial            not null,
+  id_enderecos            bigint            not null,
   nome                    varchar(255)      not null,
   cpf                     varchar(11)       not null,
   email                   varchar(255)      not null,
@@ -95,7 +141,12 @@ create table if not exists public.tb_usuarios (
   constraint pkey_tb_usuarios primary key (cpf),
 
   -- Definir a coluna `id` como única para ser utilizada como chave estrangeira
-  constraint unique_tb_usuarios_id unique (id)
+  constraint unique_tb_usuarios_id unique (id),
+
+  -- Chave estrangeira para a tabela de id_enderecos
+  constraint fkey_tb_enderecos foreign key (id_enderecos) 
+    references public.tb_enderecos(id)
+    on update cascade on delete cascade  
 );
 
 -- Cria um trigger na tabela `tb_usuarios` para gerenciar automaticamente as colunas de `timestamp`
