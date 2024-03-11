@@ -10,7 +10,7 @@ ISMAEL M. VASCONCELOS JUNIOR
 LUIZ FERNANDO VIDAL  
 MATEUS VIEIRA DA SILVA
 
-**Table of Contents**:
+## Table of Contents
 
 - [Execução](#execução)
   - [Usando o Docker compose](#usando-o-docker-compose)
