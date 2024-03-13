@@ -10,6 +10,31 @@ create type ticket_class as enum ('standard', 'senior', 'estudante', 'promociona
 -- CRIA TODAS AS TABELAS
 ---------------------
 
+create table if not exists public.tb_enderecos (
+  id                      serial            not null,
+  cep                     varchar(8)        not null,
+  rua                     varchar(255)      not null,
+  numero_cass             varchar(10)       not null,
+  complemento             varchar(255),
+  bairro                  varchar(255)      not null,
+  cidade                  varchar(255)      not null,
+  estado                  varchar(2)        not null,
+  criado_data             timestamptz       not null default current_timestamp,
+  atualizado_data         timestamptz       not null default current_timestamp,
+
+  -- Definir a chave primária
+  constraint pkey_tb_enderecos  primary key (id),
+
+  -- Definir a coluna `id` como única para ser utilizada como chave estrangeira
+  constraint unique_tb_empresas_id unique (id)
+);
+
+-- Cria um trigger na tabela `tb_enderecos` para gerenciar automaticamente as colunas de `timestamp`
+create trigger trigger_gerencia_data_tb_enderecos
+  before insert or update on public.tb_enderecos
+  for each row execute procedure public.gerencia_coluna_timestamp();
+
+
 create table if not exists public.tb_empresas (
   id                      serial            not null,
   id_enderecos            bigint            not null,
@@ -35,31 +60,6 @@ create table if not exists public.tb_empresas (
 -- Cria um trigger na tabela `tb_empresas` para gerenciar automaticamente as colunas de `timestamp`
 create trigger trigger_gerencia_data_tb_empresas
   before insert or update on public.tb_empresas
-  for each row execute procedure public.gerencia_coluna_timestamp();
-
-
-create table if not exists public.tb_enderecos (
-  id                      serial            not null,
-  cep                     varchar(8)        not null,
-  rua                     varchar(255)      not null,
-  numero_cass             varchar(10)       not null,
-  complemento             varchar(255),
-  bairro                  varchar(255)      not null,
-  cidade                  varchar(255)      not null,
-  estado                  varchar(2)        not null,
-  criado_data             timestamptz       not null default current_timestamp,
-  atualizado_data         timestamptz       not null default current_timestamp,
-
-  -- Definir a chave primária
-  constraint pkey_tb_enderecos  primary key (id),
-
-  -- Definir a coluna `id` como única para ser utilizada como chave estrangeira
-  constraint unique_tb_empresas_id unique (id)
-);
-
--- Cria um trigger na tabela `tb_enderecos` para gerenciar automaticamente as colunas de `timestamp`
-create trigger trigger_gerencia_data_tb_enderecos
-  before insert or update on public.tb_enderecos
   for each row execute procedure public.gerencia_coluna_timestamp();
 
 
