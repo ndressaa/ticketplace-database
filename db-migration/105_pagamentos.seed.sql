@@ -10,4 +10,4 @@ values
 (7, 1, 25.00,  2, 10),
 (8, 2, 150.00, 1, 5);
 
-select setval('tb_pagamentos_id_serial_seq', 8);
+select setval('tb_pagamentos_id_serial_seq', 9);
