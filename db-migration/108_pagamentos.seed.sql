@@ -10,7 +10,9 @@ values
 (7, 1, 25.00,  2, 10),
 (8, 2, 150.00, 1, 5);
 
+
+-- Criar a sequência manualmente
 CREATE SEQUENCE tb_pagamentos_id_serial_seq;
 
-
+-- Ajustar o valor da sequência
 select setval('tb_pagamentos_id_serial_seq', 9);

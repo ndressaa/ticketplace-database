@@ -21,7 +21,9 @@ values
 (17, 'vip', 235.00, 6),
 (18, 'premium', 200.00, 6);
 
+
+-- Criar a sequência manualmente
 CREATE SEQUENCE tb_ingressos_id_serial_seq;
 
-
+-- Ajustar o valor da sequência
 select setval('tb_ingressos_id_serial_seq', 19);
