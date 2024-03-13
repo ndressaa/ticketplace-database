@@ -21,4 +21,7 @@ values
 (17, 'vip', 235.00, 6),
 (18, 'premium', 200.00, 6);
 
+CREATE SEQUENCE tb_ingressos_id_serial_seq;
+
+
 select setval('tb_ingressos_id_serial_seq', 19);

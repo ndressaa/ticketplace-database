@@ -12,4 +12,10 @@ VALUES
   (9, '90123456', 'Av. das Tulipas', '2122', NULL, 'Centro', 'Fortaleza', 'CE'),
   (10, '01234567', 'Rua dos Cravos', '2324', NULL, 'Jardim Paulista', 'Campinas', 'SP');
 
+
+-- Criar a sequência manualmente
+CREATE SEQUENCE tb_enderecos_id_serial_seq;
+
+-- Ajustar o valor da sequência
 SELECT setval('tb_enderecos_id_serial_seq', 11);
+
