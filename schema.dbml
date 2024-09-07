@@ -7,11 +7,25 @@ project ticketplace {
   Note: 'PI SENAC ticketplace'
 }
 
+enum ticket_type {
+  standard
+  vip
+  premium
+}
+
+enum ticket_class {
+  standard
+  senior
+  student
+  promotional
+}
+
 Table public.tb_empresas as empresas {
   id bigint [not null, increment]
   cnpj varchar(14) [pk, not null]
   name varchar(255) [not null]
   email varchar(255) [not null]
+  id_endereco bigint [not null, ref: > enderecos.id]
   created_at timestamptz [not null, default: `current_timestamp`]
   updated_at timestamptz [not null, default: `current_timestamp`]
 }
@@ -24,6 +38,7 @@ Table public.tb_eventos as eventos {
   date timestamptz [not null, note: "Data do evento"]
   event_type _varchar(255) [not null, note: "Array[Show, Teatro, Concertos, ...]"]
   genre _varchar(255) [note: "Array[Rock, Ópera, ...]"]
+  id_endereco bigint [not null, ref: > enderecos.id]
   created_at timestamptz [not null, default: `current_timestamp`]
   updated_at timestamptz [not null, default: `current_timestamp`]
 }
@@ -44,6 +59,7 @@ Table public.tb_usuarios as usuarios {
   email varchar(255) [pk, not null]
   password varchar(255) [not null]
   token varchar(255)
+  id_endereco bigint [not null, ref: > enderecos.id]
   created_at timestamptz [not null, default: `current_timestamp`]
   updated_at timestamptz [not null, default: `current_timestamp`]
 }
@@ -75,17 +91,42 @@ Table public.tb_carrinho as carrinho {
   updated_at timestamptz [not null, default: `current_timestamp`]
 }
 
-enum ticket_type {
-  standard
-  vip
-  premium
+Table public.tb_enderecos as enderecos {
+  id bigint [pk, not null, increment]
+  cep varchar(8) [not null]
+  rua varchar(255) [not null]
+  numero varchar(10) [not null]
+  complemento varchar(255)
+  bairro varchar(255) [not null]
+  cidade varchar(255) [not null]
+  estado varchar(2) [not null]
+  created_at timestamptz [not null, default: `current_timestamp`]
+  updated_at timestamptz [not null, default: `current_timestamp`]
 }
 
-enum ticket_class {
-  standard
-  senior
-  student
-  promotional
+Table public.tb_ingressos_gerados as ingressos_gerados {
+  id bigint [pk, not null, increment]
+  id_ingresso_comprado bigint [not null, ref: > ingressos_comprados.id]
+  valor_hash text [not null]
+  imagem_ingresso text // base64 da imagem do ingresso - definir se vai ser útil
+  created_at timestamptz [not null, default: `current_timestamp`]
+  updated_at timestamptz [not null, default: `current_timestamp`]
 }
 
+Table public.tb_ingressos_comprados as ingressos_comprados {
+  id bigint [pk, not null, increment]
+  id_usuario bigint [not null, ref: > usuarios.id]
+  id_ingresso bigint [not null, ref: > ingressos.id]
+  id_ingresso_gerado bigint [ref: > ingressos_gerados.id]
+  id_ingresso_devolvido bigint [ref: > tb_ingresso_devolvido.id]
+  created_at timestamptz [not null, default: `current_timestamp`]
+  updated_at timestamptz [not null, default: `current_timestamp`]
+}
 
+Table public.tb_ingresso_devolvido as ingresso_devolvido {
+  id bigint [pk, not null, increment]
+  id_ingresso_comprado bigint [not null, ref: > ingressos_comprados.id]
+  tipo_devolucao tipo_devolucao_ingresso  [not null]
+  created_at timestamptz [not null, default: `current_timestamp`]
+  updated_at timestamptz [not null, default: `current_timestamp`]
+}
