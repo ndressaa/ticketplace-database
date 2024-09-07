@@ -20,6 +20,12 @@ enum ticket_class {
   promotional
 }
 
+enum tipo_devolucao_ingresso {
+  devolucao
+  troca
+  venda
+}
+
 Table public.tb_empresas as empresas {
   id bigint [not null, increment]
   cnpj varchar(14) [pk, not null]
