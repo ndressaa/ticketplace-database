@@ -15,8 +15,8 @@ create table tb_enderecos (
   bairro varchar(255) not null,
   cidade varchar(255) not null,
   estado varchar(2) not null,
-  created_at timestamptz not null default current_timestamp,
-  updated_at timestamptz not null default current_timestamp
+  criado_data timestamptz not null default current_timestamp,
+  atualizado_data timestamptz not null default current_timestamp
 );
 
 -- Cria um trigger na tabela `tb_enderecos` para gerenciar automaticamente as colunas de `timestamp`
@@ -35,6 +35,7 @@ alter table tb_usuarios add column id_endereco bigint references tb_enderecos(id
 create type tipo_ingresso as enum ('normal', 'venda', 'troca', 'devolucao');
 
 alter table tb_carrinho add column tipo_ingresso tipo_ingresso not null;
+alter table tb_carrinho alter column tipo_ingresso set default 'normal';
 
 
 ---
@@ -47,10 +48,10 @@ create table tb_ingressos_comprados (
   id bigserial primary key,
   id_usuario bigint not null references tb_usuarios(id),
   id_ingresso bigint not null references tb_ingressos(id),
-  id_ingresso_gerado bigint references tb_ingressos_gerados(id),
-  id_ingresso_devolvido bigint references tb_ingresso_devolvido(id),
-  created_at timestamptz not null default current_timestamp,
-  updated_at timestamptz not null default current_timestamp
+  -- id_ingresso_gerado bigint references tb_ingressos_gerados(id),
+  -- id_ingresso_devolvido bigint references tb_ingresso_devolvido(id),
+  criado_data timestamptz not null default current_timestamp,
+  atualizado_data timestamptz not null default current_timestamp
 );
 
 -- Cria um trigger na tabela `tb_ingressos_comprados` para gerenciar automaticamente as colunas de `timestamp`
@@ -70,9 +71,11 @@ create table tb_ingressos_gerados (
   id_ingresso_comprado bigint not null references tb_ingressos_comprados(id),
   valor_hash text not null,
   imagem_ingresso text,
-  created_at timestamptz not null default current_timestamp,
-  updated_at timestamptz not null default current_timestamp
+  criado_data timestamptz not null default current_timestamp,
+  atualizado_data timestamptz not null default current_timestamp
 );
+
+alter table tb_ingressos_comprados add column id_ingresso_gerado bigint references tb_ingressos_gerados(id);
 
 -- Cria um trigger na tabela `tb_ingressos_gerados` para gerenciar automaticamente as colunas de `timestamp`
 create trigger trigger_gerencia_data_tb_ingressos_gerados
@@ -83,12 +86,13 @@ create trigger trigger_gerencia_data_tb_ingressos_gerados
 create or replace function insere_id_ingresso_gerado()
   returns trigger as $$
   begin
-    update tb_ingressos_comprados
+    update public.tb_ingressos_comprados
     set id_ingresso_gerado = new.id
     where id = new.id_ingresso_comprado;
 
     return new;
   end;
+$$ language plpgsql volatile;
 
 -- Cria um triger na tabela `tb_ingressos_gerados` para inserir o id do ingresso gerado na coluna `id_ingresso_gerado` da tabela de ingressos comprados
 create trigger trigger_insere_id_ingresso_gerado
@@ -108,9 +112,11 @@ create table tb_ingresso_devolvido (
   id bigserial primary key,
   id_ingresso_comprado bigint not null references tb_ingressos_comprados(id),
   tipo_devolucao tipo_devolucao_ingresso not null,
-  created_at timestamptz not null default current_timestamp,
-  updated_at timestamptz not null default current_timestamp
+  criado_data timestamptz not null default current_timestamp,
+  atualizado_data timestamptz not null default current_timestamp
 );
+
+alter table tb_ingressos_comprados add column id_ingresso_devolvido bigint references tb_ingresso_devolvido(id);
 
 -- Cria um trigger na tabela `tb_ingresso_devolvido` para gerenciar automaticamente as colunas de `timestamp`
 create trigger trigger_gerencia_data_tb_ingresso_devolvido
@@ -121,12 +127,13 @@ create trigger trigger_gerencia_data_tb_ingresso_devolvido
 create or replace function insere_id_ingresso_devolvido()
   returns trigger as $$
   begin
-    update tb_ingressos_comprados
+    update public.tb_ingressos_comprados
     set id_ingresso_devolvido = new.id
     where id = new.id_ingresso_comprado;
 
     return new;
   end;
+$$ language plpgsql volatile;
 
 -- Cria um triger na tabela `tb_ingresso_devolvido` para inserir o id do ingresso devolvido na coluna `id_ingresso_devolvido` da tabela de ingressos comprados
 create trigger trigger_insere_id_ingresso_devolvido
@@ -148,6 +155,7 @@ create or replace function unico_ingresso_devolvido()
 
     return new;
   end;
+$$ language plpgsql volatile;
 
 -- Cria um triger na tabela `tb_ingresso_devolvido` para garantir que um ingresso não seja devolvido mais de uma vez
 create trigger trigger_unico_ingresso_devolvido

@@ -11,5 +11,5 @@ values
   (7, '12345678', 'Rua Augusta', '1000', null, 'Centro', 'São Paulo', 'SP'),
   (8, '87654321', 'Av. Brasil', '100', null, 'Jardim', 'Rio de Janeiro', 'RJ'),
   (9, '12345678', 'Rua dos Pinheiros', '1000', null, 'Centro', 'São Paulo', 'SP'),
-  (10, '87654321', 'Av. Paulista', '100', null, 'Jardim', 'Rio de Janeiro', 'RJ')
+  (10, '87654321', 'Av. Paulista', '100', null, 'Jardim', 'Rio de Janeiro', 'RJ'),
   (11, '12345678', 'Rua Jandira', '1000', null, 'Centro', 'São Paulo', 'SP');
